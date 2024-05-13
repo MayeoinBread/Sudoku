@@ -45,3 +45,9 @@ fun SudokuCellData.toggleNoteValue(value: Int): SudokuCellData {
 fun SudokuCellData.removeNoteValues(): SudokuCellData {
     return copy(attributes = attributes.filterNot { it is NoteValue}.toSet())
 }
+
+fun SudokuCellData.clearNoteValues(): SudokuCellData {
+//    println(attributes)
+//    println(attributes.filterNot { it is NoteValue }.toSet())
+    return copy(attributes = attributes.filterNot { it is NoteValue }.toSet())
+}

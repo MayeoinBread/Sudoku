@@ -16,9 +16,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mayeo.sudoku.attribute.isSelected
+import com.mayeo.sudoku.attribute.isStarter
 
 @Composable
 fun SudokuCell(sudokuCellData: SudokuCellData) {
@@ -45,7 +47,8 @@ fun SudokuCell(sudokuCellData: SudokuCellData) {
             actualText,
             modifier = Modifier.align(Alignment.Center),
             textAlign = TextAlign.Center,
-            fontSize = MaterialTheme.typography.headlineMedium.fontSize
+            fontSize = MaterialTheme.typography.headlineMedium.fontSize,
+            fontStyle = if (sudokuCellData.isStarter) FontStyle.Italic else FontStyle.Normal
         )
     }
 }

@@ -22,22 +22,39 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mayeo.sudoku.generator.SudokuGenerator
 
 @Composable
 fun SudokuView() {
     // TODO
-    //  - implement alg to generate solved table, plus initial squares
-    //  - Number type for "default" vs. "written/solved" numbers
     //  - Cell selection method?
-    //  - Clear button doesn't work - clear selection?
-    //  - "Delete" button, to clear numbers from cell (all selected, notes only? separate for "actual" and "notes")
-    //  - "Actual" number should clear notes from cell
-    //  -
+    //  -- Get rid of multiselect
+    //  - Highlight 3x3 block, plus row & column?
+    //  - Hints, cell checker, toast to pop up message to see?
+    //  - Other types of sudoku (killer, etc.)
+    //  - Time & score?
+    //  - Deselect when actual number entered (regardless of correctness)
+    //  - Catch for solutions that can't be worked out (ANR in logcat...)
+    //  - splash screen/theme when generating puzzle
+    //  - Difficulty selection (and figuring out difficulty levels)
 
-    val initialTable = SudokuTable(
-        Pair(2, 3) to 4,
-        Pair(8, 9) to 5
-    )
+    // Done
+    //  - Extra layer to array for sudoku grid? What's causing that?
+    //  - Different-sized grids (square, rectangular [2x2, 4x4, 4x3 etc.]
+    //  - Number type for "default" vs. "written/solved" numbers
+    //  - Clear button doesn't work - clear selection (selected cells), separate delete button?
+    //  - "Delete" button, to clear numbers from cell (all selected, notes only? separate for "actual" and "notes")
+    //    - Takes number input mode into account
+    //  - Filling "Actual" number should clear notes from cell
+    //  - implement alg to generate solved table, plus initial squares
+
+//    val initialTable = SudokuTable(
+//        Pair(2, 3) to 4,
+//        Pair(8, 9) to 5
+//    )
+
+    val initialTable = SudokuTable()
+    println(initialTable.values.size)
 
     val viewModel = remember {
         SudokuViewModel(initialTable)
@@ -67,7 +84,7 @@ fun SudokuView() {
                 Modifier
                     .weight(1f)
                     .align(Alignment.CenterHorizontally)
-                ) {
+            ) {
                 viewModel.changeNumberType(it)
             }
         }
@@ -76,6 +93,8 @@ fun SudokuView() {
 
 @Composable
 private fun SudokuTableView(modifier: Modifier = Modifier) {
+    // Creates the full sudoku table, collection of grids (SudokuBox), which contain the
+    //  individual cells (SudokuCell)
     val viewModel = LocalSudokuViewModel.current
     val sudokuTable = viewModel.table().collectAsState().value
     println(sudokuTable.values)
@@ -83,18 +102,17 @@ private fun SudokuTableView(modifier: Modifier = Modifier) {
         modifier
             .background(MaterialTheme.colorScheme.background)
     ) {
-        val width = minOf(maxWidth, maxHeight) / 9
+        val width = minOf(maxWidth, maxHeight) / FULL_WIDTH
         Row {
-            repeat(3) { boxRow ->
+            repeat(SUBGRID_ROWS) { boxCol ->
                 Column {
-                    repeat(3) { boxColumn ->
-                        val boxIndex = (boxColumn * 3) + boxRow
+                    repeat(SUBGRID_COLS) { boxRow ->
                         Box(
                             Modifier
-                                .width(width * 3)
-                                .height(width * 3)
+                                .width(width * MAINGRID_ROWS)
+                                .height(width * MAINGRID_COLS)
                         ) {
-                            SudokuBox(boxIndex = boxIndex)
+                            SudokuBox(boxRow, boxCol)
                         }
                     }
                 }
@@ -104,24 +122,23 @@ private fun SudokuTableView(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SudokuBox(boxIndex: Int) {
-    val rowStart = boxIndex / 3
-    val columnStart = boxIndex % 3
+fun SudokuBox(boxRow: Int, boxCol: Int) {
+    // Creates a subgrid of "x" cells depending on subgrid row/column properties
     val sudokuTable = LocalSudokuViewModel.current.table().collectAsState().value
     BoxWithConstraints(
         Modifier
             .fillMaxSize()
             .border(2.dp, MaterialTheme.colorScheme.onBackground)
     ) {
-        val width = maxWidth / 3
-        val height = maxHeight / 3
+        val width = maxWidth / MAINGRID_ROWS
+        val height = maxHeight / MAINGRID_COLS
 
         Row {
-            repeat(3) { repeatedColumn ->
+            repeat(SUBGRID_COLS) { repeatedColumn ->
                 Column {
-                    repeat(3) { repeatedRow ->
-                        val column = (columnStart * 3) + repeatedColumn
-                        val row = (rowStart * 3) + repeatedRow
+                    repeat(SUBGRID_ROWS) { repeatedRow ->
+                        val column = (boxCol * SUBGRID_COLS) + repeatedColumn
+                        val row = (boxRow * SUBGRID_ROWS) + repeatedRow
                         val sudokuCellValues = sudokuTable.get(row, column)
                         Box(Modifier.size(width, height)) {
                             SudokuCell(sudokuCellData = sudokuCellValues)

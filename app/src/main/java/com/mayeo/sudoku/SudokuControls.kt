@@ -19,7 +19,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,13 +64,26 @@ fun SudokuControls(
             val viewModel = LocalSudokuViewModel.current
             Button(
                 onClick = {
-                    viewModel.delete()
-                }
+                    viewModel.clear()
+                },
+                modifier = modifier.fillMaxWidth()
             ) {
-                Text(text = "Clear")
+                Text(text = "Deselect")
             }
 
+            Spacer(modifier = Modifier.size(16.dp))
+
             val inputType = viewModel.numberInputType().collectAsState().value
+            Button(
+                onClick = {
+                    viewModel.delete()
+                },
+                modifier = modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete")
+            }
+
             Spacer(modifier = Modifier.size(16.dp))
 
             NumberInputTypeButton(
@@ -139,8 +155,8 @@ fun NumberInputTypeButton(
 @Composable
 fun ControlBox() {
     val viewModel = LocalSudokuViewModel.current
-    FixedGrid(columnCount = 3, Modifier.clickable {}) {
-        repeat(9) {
+    FixedGrid(columnCount = SUBGRID_COLS, Modifier.clickable {}) {
+        repeat(MAX_VAL) {
             val number = it + 1
             NumberPadButton(number = number, viewModel.numberInputType().collectAsState().value) {
                 viewModel.onNumberPressed(number)
