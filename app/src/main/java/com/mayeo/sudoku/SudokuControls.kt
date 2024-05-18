@@ -1,5 +1,6 @@
 package com.mayeo.sudoku
 
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,7 +21,10 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,10 +45,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SudokuControls(
-    numberInputType: NumberInputType,
+    numEmptyCells: Int,
     modifier: Modifier = Modifier,
-    onNumberInputTypeChanged: (NumberInputType) -> Unit,
 ) {
+    val localContext = LocalContext.current
+
     Row(
         modifier
             .fillMaxHeight()
@@ -62,62 +68,105 @@ fun SudokuControls(
                 .offset(16.dp)
         ) {
             val viewModel = LocalSudokuViewModel.current
-            Button(
-                onClick = {
-                    viewModel.clear()
-                },
-                modifier = modifier.fillMaxWidth()
-            ) {
-                Text(text = "Deselect")
-            }
-
-            Spacer(modifier = Modifier.size(16.dp))
-
             val inputType = viewModel.numberInputType().collectAsState().value
-            Button(
-                onClick = {
-                    viewModel.delete()
-                },
-                modifier = modifier.fillMaxWidth()
-            ) {
-                Icon(imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete")
+
+            Row {
+                NumberInputTypeButton(
+                    inputType == NumberInputType.Actual,
+                    onSelection = {
+                        viewModel.changeNumberType(NumberInputType.Actual)
+                    },
+                ) {
+                    Text(
+                        text = "9",
+                        fontWeight = FontWeight(600),
+                        textAlign = TextAlign.Center,
+                        fontSize = TextUnit(18f, TextUnitType.Sp),
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .align(Alignment.CenterVertically)
+                    )
+                }
+
+                Spacer(modifier = Modifier.size(8.dp))
+
+                NumberInputTypeButton(
+                    inputType == NumberInputType.Note,
+                    onSelection = {
+                        viewModel.changeNumberType(NumberInputType.Note)
+                    },
+                ) {
+                    Text(
+                        text = "9",
+                        textAlign = TextAlign.Center,
+                        fontSize = TextUnit(12f, TextUnitType.Sp))
+                }
             }
 
             Spacer(modifier = Modifier.size(16.dp))
 
-            NumberInputTypeButton(
-                inputType == NumberInputType.Actual,
-                onSelection = {
-                    viewModel.changeNumberType(NumberInputType.Actual)
+            Row {
+                Button(
+                    onClick = {
+                        viewModel.clear()
+                    },
+                    modifier = modifier.fillMaxWidth(0.5f)
+                ) {
+                    Icon(imageVector = Icons.Default.Clear,
+                        contentDescription = "Deselect")
                 }
-            ) {
-                Text(
-                    text = "9",
-                    fontWeight = FontWeight(600),
-                    textAlign = TextAlign.Center,
-                    fontSize = TextUnit(18f, TextUnitType.Sp),
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
-                )
+
+                Spacer(modifier = Modifier.size(8.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.delete()
+                    },
+                    modifier = modifier.fillMaxWidth(0.5f)
+                ) {
+                    Icon(imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete")
+                }
             }
 
-            Spacer(modifier = Modifier.size(8.dp))
+            Spacer(modifier = Modifier.size(16.dp))
 
-            NumberInputTypeButton(
-                inputType == NumberInputType.Note,
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                onSelection = {
-                    viewModel.changeNumberType(NumberInputType.Note)
+            Row {
+                Button(
+                    onClick = {
+                        viewModel.checkCell()
+                    },
+                    modifier = modifier.fillMaxWidth(0.5f)
+                ) {
+                    Icon(imageVector = Icons.Default.Check,
+                        contentDescription = "Check")
                 }
-            ) {
-                Text(
-                    text = "9",
-                    textAlign = TextAlign.Center,
-                    fontSize = TextUnit(12f, TextUnitType.Sp))
+
+                Spacer(modifier = Modifier.size(8.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.giveHint()
+                    },
+                    modifier = modifier.fillMaxWidth(0.5f)
+                ) {
+                    Icon(imageVector = Icons.Default.Info,
+                        contentDescription = "Hint")
+                }
             }
 
+            Spacer(modifier = Modifier.size(16.dp))
+            
+            Button(
+                onClick = {
+                    val incorrectCells = viewModel.solvePuzzle()
+                    Toast.makeText(localContext, "$incorrectCells cells incorrect!", Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = numEmptyCells == 0
+            ) {
+                Text(text = "Solve")
+            }
         }
     }
 }
@@ -201,7 +250,7 @@ fun NumberPadButton(
 @Preview(widthDp = 500, heightDp = 300)
 @Composable
 fun SudokuControlsPreview() {
-    SudokuControls(NumberInputType.Actual){
-
-    }
+    SudokuControls(
+        numEmptyCells = 60
+    )
 }

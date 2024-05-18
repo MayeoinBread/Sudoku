@@ -100,11 +100,6 @@ class SudokuGenerator {
         fullGrid = grid.map {it.copyOf()}.toTypedArray()
 
         while (remainingCells > cellsToKeep) {
-            println("iteration:")
-            grid.forEach { row ->
-                println(row.joinToString(" "))
-            }
-            println(" ")
             val row = Random.nextInt(MAX_VAL)
             val col = Random.nextInt(MAX_VAL)
             if (grid[row][col] != 0) {

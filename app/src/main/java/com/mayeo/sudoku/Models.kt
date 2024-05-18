@@ -2,6 +2,8 @@ package com.mayeo.sudoku
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import com.mayeo.sudoku.attribute.Editable
+import com.mayeo.sudoku.attribute.Incorrect
 import com.mayeo.sudoku.attribute.Starter
 import com.mayeo.sudoku.generator.SudokuGenerator
 
@@ -19,6 +21,18 @@ data class SudokuTable(
             set((row * FULL_HEIGHT) + column, sudokuCellData)
         }.let {
             SudokuTable(it)
+        }
+    }
+
+    fun numEmptyCells(): Int {
+        return values.count {
+            it.number == null
+        }
+    }
+
+    fun numIncorrectCells(): Int {
+        return values.count {
+            it.attributes.contains(Incorrect)
         }
     }
 
@@ -42,7 +56,7 @@ data class SudokuTable(
                             fullNumber,
                             row,
                             column,
-                            if (number != 0) setOf(Starter) else setOf(),
+                            if (number != 0) setOf(Starter) else setOf(Editable),
                         ))
                     }
                 }
@@ -62,6 +76,10 @@ data class SudokuCellData(
         @Composable
         fun Draw()
     }
+}
+
+fun SudokuCellData.clearActualValue(): SudokuCellData {
+    return copy(number = null)
 }
 
 enum class NumberInputType {

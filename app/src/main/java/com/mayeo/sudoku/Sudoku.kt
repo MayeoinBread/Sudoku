@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -27,18 +29,24 @@ import com.mayeo.sudoku.generator.SudokuGenerator
 @Composable
 fun SudokuView() {
     // TODO
-    //  - Cell selection method?
-    //  -- Get rid of multiselect
-    //  - Highlight 3x3 block, plus row & column?
-    //  - Hints, cell checker, toast to pop up message to see?
-    //  - Other types of sudoku (killer, etc.)
-    //  - Time & score?
-    //  - Deselect when actual number entered (regardless of correctness)
-    //  - Catch for solutions that can't be worked out (ANR in logcat...)
     //  - splash screen/theme when generating puzzle
+    //  - Maintain current table/setup when orientation/theme is changed (resets everything...)
+    //  -- In other words, main app screen with options for size/difficulty, selecting this generates a grid/table for the run
+    //  -- That grid/table is saved and passed to the game screen, where it is kept in memory on theme/orientation changes
+    //  - Highlight 3x3 block, plus row & column?
+    //  - Time & score?
     //  - Difficulty selection (and figuring out difficulty levels)
+    //  - Catch for solutions that can't be worked out (ANR in logcat...)
+    //  - Other types of sudoku (killer, etc.)
 
     // Done
+    //  - Cell selection method?
+    //  -- Get rid of multiselect
+    //  - "Editable" attribute, update handling for cell editing
+    //  - Only Editable cells are Selectable
+    //  - Hints, cell checker, toast to pop up message to see? (no toast)
+    //  - Deselect when actual number entered (regardless of correctness)
+
     //  - Extra layer to array for sudoku grid? What's causing that?
     //  - Different-sized grids (square, rectangular [2x2, 4x4, 4x3 etc.]
     //  - Number type for "default" vs. "written/solved" numbers
@@ -60,6 +68,10 @@ fun SudokuView() {
         SudokuViewModel(initialTable)
     }
 
+    val numEmptyCells = remember {
+        viewModel.numEmptyCells
+    }
+
     CompositionLocalProvider(
         LocalSudokuViewModel provides viewModel
     ) {
@@ -79,14 +91,20 @@ fun SudokuView() {
                     .align(Alignment.CenterHorizontally)
             )
 
+            Spacer(modifier = Modifier.size(16.dp))
+
+            Text(
+                text = "Empty cells: ${numEmptyCells.collectAsState().value}"
+            )
+
+            Spacer(modifier = Modifier.size(16.dp))
+
             SudokuControls(
-                numberInputType = viewModel.numberInputType().collectAsState().value,
+                numEmptyCells.collectAsState().value,
                 Modifier
                     .weight(1f)
                     .align(Alignment.CenterHorizontally)
-            ) {
-                viewModel.changeNumberType(it)
-            }
+            )
         }
     }
 }

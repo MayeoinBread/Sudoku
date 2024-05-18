@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mayeo.sudoku.attribute.isSelected
@@ -26,7 +27,8 @@ import com.mayeo.sudoku.attribute.isStarter
 fun SudokuCell(sudokuCellData: SudokuCellData) {
     val viewModel = LocalSudokuViewModel.current
     val color =
-        animateColorAsState(targetValue = if (sudokuCellData.isSelected) MaterialTheme.colorScheme.primary.copy(alpha=0.2f) else Color.Unspecified)
+            animateColorAsState(targetValue = if (sudokuCellData.isSelected) MaterialTheme.colorScheme.primary.copy(alpha=0.2f) else Color.Unspecified)
+
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     if (isHovered) {
@@ -48,7 +50,8 @@ fun SudokuCell(sudokuCellData: SudokuCellData) {
             modifier = Modifier.align(Alignment.Center),
             textAlign = TextAlign.Center,
             fontSize = MaterialTheme.typography.headlineMedium.fontSize,
-            fontStyle = if (sudokuCellData.isStarter) FontStyle.Italic else FontStyle.Normal
+            fontWeight = if (sudokuCellData.isStarter) FontWeight.Bold else FontWeight.Normal,
+//            fontStyle = if (sudokuCellData.isStarter) FontStyle.Italic else FontStyle.Normal
         )
     }
 }
